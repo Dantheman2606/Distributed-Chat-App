@@ -7,7 +7,7 @@
 
     <groupId>com.daniel.chatapp</groupId>
     <artifactId>chatapp</artifactId>
-    <version>1.0</version>
+    <version>1.2</version>
 
     <properties>
         <maven.compiler.source>24</maven.compiler.source>

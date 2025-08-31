@@ -10,39 +10,48 @@ public class ChatClient {
     private PrintWriter out;
     private String username;
 
-    public ChatClient(String serverAddress, int serverPort, String username) {
+    public ChatClient(String serverAddress, int serverPort, String username) throws IOException {
+        this.socket = new Socket(serverAddress, serverPort);
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new PrintWriter(socket.getOutputStream(), true);
+        this.username = username;
+    }
+
+    public void start() {
+        System.out.println("Connected to server as " + username);
+
+        out.println(username); // send username first
+
+        // Thread to read incoming messages
+        new Thread(new IncomingReader()).start();
+
+        // Main input loop
+        Scanner sc = new Scanner(System.in);
         try {
-            this.socket = new Socket(serverAddress, serverPort);
-            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.out = new PrintWriter(socket.getOutputStream(), true);
-            this.username = username;
-
-            System.out.println("Connected to server at "+serverAddress+": "+serverPort);
-
-            new Thread(new IncomingReader()).start();
-
-            out.println(username);
-
-            Scanner sc = new Scanner(System.in);
             while(true) {
+//                System.out.print("["+username+"]");
                 String message = sc.nextLine();
-                out.println("["+username+"] : "+message);
+                if(message.equalsIgnoreCase("/quit")) {
+                    out.println("/quit");
+                    socket.close();
+                    System.out.println("Disconnected from server.");
+                    break;
+                }
+                out.println(message); // server prepends username
             }
-        }
-        catch (IOException e) {
-            System.out.println("Error connecting to server: "+e.getMessage());
+        } catch(IOException e) {
+            System.out.println("Connection closed.");
         }
     }
 
-    private class IncomingReader implements Runnable{
+    private class IncomingReader implements Runnable {
         public void run() {
-            try{
+            try {
                 String msg;
                 while((msg = in.readLine()) != null) {
                     System.out.println(msg);
                 }
-            }
-            catch (IOException e) {
+            } catch(IOException e) {
                 System.out.println("Connection closed.");
             }
         }
