@@ -32,10 +32,10 @@ ChatApp/
 ├── src/
 │ └── main/java/com/daniel/chatapp/
 │ ├── server/
-│ │ ├── Server.java
+│ │ ├── ChatServer.java
 │ │ └── ClientHandler.java
 │ └── client/
-│ └── Client.java
+│ └── ChatClient.java
 │
 ├── pom.xml
 └── README.md
