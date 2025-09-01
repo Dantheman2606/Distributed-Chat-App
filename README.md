@@ -35,7 +35,7 @@ ChatApp/
 │ │ ├── ChatServer.java
 │ │ └── ClientHandler.java
 │ └── client/
-│ └── ChatClient.java
+│   └── ChatClient.java
 │
 ├── pom.xml
 └── README.md

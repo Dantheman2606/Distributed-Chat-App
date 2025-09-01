@@ -2,6 +2,8 @@ package com.daniel.chatapp.server;
 
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
@@ -33,7 +35,16 @@ public class ClientHandler implements Runnable {
             String message;
             while((message = in.readLine()) != null) {
                 if(message.equalsIgnoreCase("/quit")) break;
-                server.broadcast("[" + username + "] " + message, this);
+
+                if(message.equalsIgnoreCase("/users")) {
+                    listUsers();
+                    continue;
+                }
+
+                LocalDateTime dt = LocalDateTime.now();
+                DateTimeFormatter dt_format = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
+                String formatted_dt = dt.format(dt_format);
+                server.broadcast("[" + username + "] : " +formatted_dt+" : "+ message, this);
             }
 
         } catch(IOException e) {
@@ -50,6 +61,10 @@ public class ClientHandler implements Runnable {
 
     public void sendMessage(String message) {
         out.println(message);
+    }
+
+    public void listUsers() {
+        server.listClients(this);
     }
 
     public void close() throws IOException {

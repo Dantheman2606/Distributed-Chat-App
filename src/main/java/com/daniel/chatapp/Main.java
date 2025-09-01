@@ -3,6 +3,8 @@ package com.daniel.chatapp;
 import com.daniel.chatapp.client.ChatClient;
 import com.daniel.chatapp.server.ChatServer;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class Main {
@@ -29,7 +31,11 @@ public class Main {
                     server.stop();
                     break;
                 }
-                server.broadcast("[Server] " + msg, null);
+                LocalDateTime dt = LocalDateTime.now();
+                DateTimeFormatter dt_format = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
+                String formatted_dt = dt.format(dt_format);
+
+                server.broadcast("[Server] : " + formatted_dt+" : "+ msg, null);
             }
 
         } else if(mode.equalsIgnoreCase("client")) {
