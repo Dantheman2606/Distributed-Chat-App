@@ -45,17 +45,22 @@ public class ClientHandler implements Runnable {
 
             String message;
             while((message = in.readLine()) != null) {
-                if(message.equalsIgnoreCase("/quit")) break;
-
-                if(message.equalsIgnoreCase("/users")) {
-                    listUsers();
-                    continue;
+                if(message.startsWith("/")) {
+                    // Logic for /quit /users /msg
+                    handleCommand(message);
                 }
-
-                LocalDateTime dt = LocalDateTime.now();
-                DateTimeFormatter dt_format = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
-                String formatted_dt = dt.format(dt_format);
-                server.broadcast("[" + username + "] : " +formatted_dt+" : "+ message, this);
+                else {
+                    LocalDateTime dt = LocalDateTime.now();
+                    DateTimeFormatter dt_format = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
+                    String formatted_dt = dt.format(dt_format);
+                    server.broadcast("[" + username + "] : " +formatted_dt+" : "+ message, this);
+                }
+//                if(message.equalsIgnoreCase("/quit")) break;
+//
+//                if(message.equalsIgnoreCase("/users")) {
+//                    listUsers();
+//                    continue;
+//                }
             }
 
         } catch(IOException e) {
@@ -89,4 +94,43 @@ public class ClientHandler implements Runnable {
             socket.close();
         }
     }
+
+    private void handleCommand(String message) {
+        if (message.equalsIgnoreCase("/quit")) {
+            if (socket != null && !socket.isClosed()) {
+                regularDisconnection = true;
+                out.println("You have been disconnected.");
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return; // stop here
+        }
+
+        if (message.equalsIgnoreCase("/users")) {
+            listUsers();
+            return;
+        }
+
+        if (message.startsWith("/msg ")) {
+            String[] parts = message.split(" ", 3);
+            if (parts.length < 3) {
+                out.println("Usage: /msg <username> <message>");
+                return;
+            }
+            String targetUser = parts[1];
+            String privateMessage = parts[2];
+            boolean sent = server.sendPrivateMessage(this, targetUser, privateMessage);
+            if (!sent) {
+                out.println("User '" + targetUser + "' not found or not online.");
+            }
+            return;
+        }
+
+        // Unknown command
+        out.println("Unknown command: " + message);
+    }
+
 }

@@ -73,6 +73,18 @@ public class ChatServer {
         }
     }
 
+    public boolean sendPrivateMessage(ClientHandler sender, String targetUsername, String message) {
+        for (ClientHandler client : clients.values()) {
+            if (client.getUsername().equalsIgnoreCase(targetUsername)) {
+                client.sendMessage("[PM from " + sender.getUsername() + "] " + message);
+                sender.sendMessage("[PM to " + targetUsername + "] " + message);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public void stop() {
         running = false;
         try {

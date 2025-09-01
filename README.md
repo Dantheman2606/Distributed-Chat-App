@@ -63,7 +63,7 @@ This will generate the jar file in the target/ directory, e.g., chatapp-1.2.jar.
 
 ### Run the Executable
 ```bash
-java -jar target/chatapp-1.2.jar
+java -jar target/chatapp-1.3.jar
 ```
 
 ### Usage
