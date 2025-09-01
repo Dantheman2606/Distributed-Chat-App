@@ -12,12 +12,21 @@ public class ClientHandler implements Runnable {
     private BufferedReader in;
     private String username;
 
+    private boolean regularDisconnection = false;
+
     public ClientHandler(Socket socket, ChatServer server) {
         this.socket = socket;
         this.server = server;
     }
 
     public String getUsername() {
+//        while(username == null) {
+//            try {
+//                wait();
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
         return username;
     }
 
@@ -29,6 +38,8 @@ public class ClientHandler implements Runnable {
 
             // first message from client is username
             this.username = in.readLine();
+//            notifyAll();  // only after username is acquired, the getUsername function can work
+
             out.println("Welcome to the Chat, " + username + "!");
             server.broadcast("[" + username + "] has joined the chat.", this);
 
@@ -48,7 +59,9 @@ public class ClientHandler implements Runnable {
             }
 
         } catch(IOException e) {
-            System.out.println("Client disconnected unexpectedly!");
+            if(!regularDisconnection) {
+                server.broadcast(username + " disconnected unexpectedly!", this);
+            }
         } finally {
             try {
                 close();
@@ -68,6 +81,12 @@ public class ClientHandler implements Runnable {
     }
 
     public void close() throws IOException {
-        if(socket != null && !socket.isClosed()) socket.close();
+        if(socket != null && !socket.isClosed()) {
+            regularDisconnection = true;
+            out.println("/quit");
+//            out.println("Disconnected from server.");
+
+            socket.close();
+        }
     }
 }

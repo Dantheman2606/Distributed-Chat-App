@@ -33,6 +33,11 @@ public class ChatServer {
 
                 new Thread(handler).start();
 //                System.out.println(handler.getUsername()+handler);
+                // make sure username is acquired before proceeding
+                while(handler.getUsername() == null) {
+
+                }
+
                 clients.put(handler.getUsername(), handler);
 
             }

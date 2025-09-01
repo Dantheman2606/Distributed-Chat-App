@@ -10,11 +10,14 @@ public class ChatClient {
     private PrintWriter out;
     private String username;
 
+    private boolean running;
+
     public ChatClient(String serverAddress, int serverPort, String username) throws IOException {
         this.socket = new Socket(serverAddress, serverPort);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.username = username;
+        this.running = true;
     }
 
     public void start() {
@@ -28,13 +31,20 @@ public class ChatClient {
         // Main input loop
         Scanner sc = new Scanner(System.in);
         try {
-            while(true) {
-//                System.out.print("["+username+"]");
+            while(running) {
+//                System.out.println(socket.isClosed());
+//
+//                if(socket.isClosed()) {
+//                    System.out.println(socket.isClosed());
+//                    System.out.println("Disconnected from server.");
+//                    break;
+//                }
+////                System.out.print("["+username+"]");
                 String message = sc.nextLine();
                 if(message.equalsIgnoreCase("/quit")) {
                     out.println("/quit");
                     socket.close();
-                    System.out.println("Disconnected from server.");
+//                    System.out.println("Disconnected from server.");
                     break;
                 }
                 out.println(message); // server prepends username
@@ -49,6 +59,14 @@ public class ChatClient {
             try {
                 String msg;
                 while((msg = in.readLine()) != null) {
+
+                    if(msg.equalsIgnoreCase("/quit")) {
+                        socket.close();
+                        running = false;
+                        System.out.println("Disconnected from server.");
+                        System.exit(0);
+                        break;
+                    }
                     System.out.println(msg);
                 }
             } catch(IOException e) {
