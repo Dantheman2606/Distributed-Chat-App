@@ -3,6 +3,7 @@ package com.daniel.chatapp.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -10,12 +11,15 @@ public class ChatServer {
     private int port;
 //    private CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
     private ConcurrentHashMap<String, ClientHandler> clients = new ConcurrentHashMap<>();
+    private final Map<String, ChatRoom> rooms = new ConcurrentHashMap<>();
+
+
     private ServerSocket serverSocket;
     private boolean running = false;
 
     public ChatServer(int port) {
         this.port = port;
-
+        rooms.put("global", new ChatRoom("global", ""));
     }
 
     public void start() {
@@ -37,6 +41,7 @@ public class ChatServer {
                 while(handler.getUsername() == null) {
 
                 }
+                System.out.println("[" + handler.getUsername() + "] had joined the chat!");
 
                 clients.put(handler.getUsername(), handler);
 
@@ -47,6 +52,7 @@ public class ChatServer {
         }
     }
 
+    // Old broadcast (global) kept for server messages only
     public void broadcast(String message, ClientHandler sender) {
         for(ClientHandler client: clients.values()) {
             if(client != sender) {
@@ -59,7 +65,7 @@ public class ChatServer {
     public void removeClient(ClientHandler client) {
         clients.remove(client.getUsername());
         if(client.getUsername() != null) {
-            broadcast("[" + client.getUsername() + "] has left the chat.", null);
+            System.out.println("[" + client.getUsername() + "] has left the chat.");
         }
     }
 
@@ -82,6 +88,23 @@ public class ChatServer {
             }
         }
         return false;
+    }
+
+    public ChatRoom getOrCreateRoom(String name, String password) {
+        return rooms.computeIfAbsent(name.toLowerCase(), n -> new ChatRoom(n, password));
+    }
+
+    // Only fetch (don’t create)
+    public ChatRoom getRoom(String name) {
+        return rooms.get(name.toLowerCase());
+    }
+
+    public void listRooms(ClientHandler requester) {
+        if (rooms.isEmpty()) {
+            requester.sendMessage("[system] No rooms yet. Create one with: /createroom <room>");
+            return;
+        }
+        requester.sendMessage("[system] Rooms: \n" + String.join("\n", rooms.keySet()));
     }
 
 

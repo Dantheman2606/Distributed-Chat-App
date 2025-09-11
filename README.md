@@ -11,8 +11,8 @@ A **multi-client, socket-based chat application** built in **Java** with a Comma
 - **Multi-client support** – multiple users can connect simultaneously.
 - **CLI interface** – lightweight and easy to use.
 - **Authentication (planned)** – register and login securely.
-- **Private messaging (planned)** – send direct messages to other users.
-- **Chat rooms (planned)** – join or create group chat rooms.
+- **Private messaging** – send direct messages to other users.
+- **Chat rooms** – join or create group chat rooms.
 - **File transfer (future)** – send files between clients.
 
 ---
@@ -34,6 +34,7 @@ ChatApp/
 │ ├── server/
 │ │ ├── ChatServer.java
 │ │ └── ClientHandler.java
+│ │ └── ChatRoom.java
 │ └── client/
 │   └── ChatClient.java
 │
@@ -63,7 +64,7 @@ This will generate the jar file in the target/ directory, e.g., chatapp-1.2.jar.
 
 ### Run the Executable
 ```bash
-java -jar target/chatapp-1.3.jar
+java -jar target/chatapp-1.4.jar
 ```
 
 ### Usage

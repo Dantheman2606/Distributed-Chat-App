@@ -7,7 +7,7 @@
 
     <groupId>com.daniel.chatapp</groupId>
     <artifactId>chatapp</artifactId>
-    <version>1.3</version>
+    <version>1.4</version>
 
 <!--    change the compiler version depending on your JDK-->
 <!--    <properties>-->

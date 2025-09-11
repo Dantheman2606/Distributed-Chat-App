@@ -5,12 +5,13 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ChatClient {
-    private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
-    private String username;
+    private final Socket socket;
+    private final BufferedReader in;
+    private final PrintWriter out;
+    private final String username;
 
     private boolean running;
+    private volatile String currentRoom = "global"; // start in global by default
 
     public ChatClient(String serverAddress, int serverPort, String username) throws IOException {
         this.socket = new Socket(serverAddress, serverPort);
@@ -31,25 +32,19 @@ public class ChatClient {
         // Main input loop
         Scanner sc = new Scanner(System.in);
         try {
-            while(running) {
-//                System.out.println(socket.isClosed());
-//
-//                if(socket.isClosed()) {
-//                    System.out.println(socket.isClosed());
-//                    System.out.println("Disconnected from server.");
-//                    break;
-//                }
-////                System.out.print("["+username+"]");
+            while (running) {
+                System.out.print("[" + username + "@" + currentRoom + "] > ");
                 String message = sc.nextLine();
-                if(message.equalsIgnoreCase("/quit")) {
+
+                if (message.equalsIgnoreCase("/quit")) {
                     out.println("/quit");
                     socket.close();
-//                    System.out.println("Disconnected from server.");
                     break;
                 }
-                out.println(message); // server prepends username
+
+                out.println(message);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.out.println("Connection closed.");
         }
     }
@@ -58,9 +53,13 @@ public class ChatClient {
         public void run() {
             try {
                 String msg;
-                while((msg = in.readLine()) != null) {
+                while ((msg = in.readLine()) != null) {
+                    // Look for special messages from server telling us the current room
+                    if (msg.startsWith("You are now in room: ")) {
+                        currentRoom = msg.substring("You are now in room: ".length()).trim();
+                    }
 
-                    if(msg.equalsIgnoreCase("/quit")) {
+                    if (msg.equalsIgnoreCase("/quit")) {
                         socket.close();
                         running = false;
                         System.out.println("Disconnected from server.");
@@ -69,7 +68,7 @@ public class ChatClient {
                     }
                     System.out.println(msg);
                 }
-            } catch(IOException e) {
+            } catch (IOException e) {
                 System.out.println("Connection closed.");
             }
         }
